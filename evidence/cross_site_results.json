@@ -1,0 +1,235 @@
+[
+  {
+    "site": {
+      "name": "shopify_allbirds",
+      "url": "https://www.allbirds.com/products/mens-tree-runners",
+      "industry": "E-commerce",
+      "type": "PDP"
+    },
+    "raw": {
+      "json_ld_count": 1,
+      "json_ld_types": [],
+      "text_blocks": 350
+    },
+    "rendered": {
+      "json_ld_count": 1,
+      "json_ld_types": [],
+      "text_blocks": 350
+    },
+    "classification": "A: structured data server-rendered"
+  },
+  {
+    "site": {
+      "name": "amazon_product",
+      "url": "https://www.amazon.com/Apple-AirPods-Pro-2nd-Gen/dp/B0D1XD1ZV3",
+      "industry": "E-commerce",
+      "type": "PDP"
+    },
+    "raw": {
+      "json_ld_count": 0,
+      "json_ld_types": [],
+      "text_blocks": 77
+    },
+    "rendered": {
+      "json_ld_count": 0,
+      "json_ld_types": [],
+      "text_blocks": 2
+    },
+    "classification": "C: no relevant structured data"
+  },
+  {
+    "site": {
+      "name": "target_product",
+      "url": "https://www.target.com/p/apple-airpods-pro-2nd-generation-with-magsafe-case-usb-c/-/A-89917578",
+      "industry": "E-commerce",
+      "type": "PDP"
+    },
+    "raw": {
+      "json_ld_count": 0,
+      "json_ld_types": [],
+      "text_blocks": 20
+    },
+    "rendered": {
+      "json_ld_count": 0,
+      "json_ld_types": [],
+      "text_blocks": 29
+    },
+    "classification": "C: no relevant structured data"
+  },
+  {
+    "site": {
+      "name": "salesforce_ai",
+      "url": "https://www.salesforce.com/products/einstein-ai/",
+      "industry": "SaaS",
+      "type": "Capability"
+    },
+    "raw": {
+      "json_ld_count": 1,
+      "json_ld_types": [
+        "Product"
+      ],
+      "text_blocks": 61
+    },
+    "rendered": {
+      "json_ld_count": 1,
+      "json_ld_types": [
+        "Product"
+      ],
+      "text_blocks": 67
+    },
+    "classification": "A: structured data server-rendered"
+  },
+  {
+    "site": {
+      "name": "datadog_apm",
+      "url": "https://www.datadoghq.com/product/apm/",
+      "industry": "SaaS",
+      "type": "Capability"
+    },
+    "raw": {
+      "json_ld_count": 1,
+      "json_ld_types": [
+        "Product"
+      ],
+      "text_blocks": 164
+    },
+    "rendered": {
+      "json_ld_count": 1,
+      "json_ld_types": [
+        "Product"
+      ],
+      "text_blocks": 166
+    },
+    "classification": "A: structured data server-rendered"
+  },
+  {
+    "site": {
+      "name": "airbnb_listing",
+      "url": "https://www.airbnb.com/rooms/10317668",
+      "industry": "Travel",
+      "type": "Listing"
+    },
+    "raw": {
+      "json_ld_count": 0,
+      "json_ld_types": [],
+      "text_blocks": 1
+    },
+    "rendered": {
+      "json_ld_count": 0,
+      "json_ld_types": [],
+      "text_blocks": 2
+    },
+    "classification": "E: important facts themselves are render-only"
+  },
+  {
+    "site": {
+      "name": "marriott_hotel",
+      "url": "https://www.marriott.com/en-us/hotels/nycjw-jw-marriott-essex-house-new-york/overview/",
+      "industry": "Travel",
+      "type": "Property"
+    },
+    "raw": {
+      "json_ld_count": 0,
+      "json_ld_types": [],
+      "text_blocks": 3
+    },
+    "rendered": {
+      "json_ld_count": 0,
+      "json_ld_types": [],
+      "text_blocks": 3
+    },
+    "classification": "C: no relevant structured data"
+  },
+  {
+    "site": {
+      "name": "stripe_payments",
+      "url": "https://stripe.com/payments",
+      "industry": "Finance",
+      "type": "Capability"
+    },
+    "raw": {
+      "json_ld_count": 0,
+      "json_ld_types": [],
+      "text_blocks": 326
+    },
+    "rendered": {
+      "json_ld_count": 0,
+      "json_ld_types": [],
+      "text_blocks": 325
+    },
+    "classification": "C: no relevant structured data"
+  },
+  {
+    "site": {
+      "name": "mayoclinic_disease",
+      "url": "https://www.mayoclinic.org/diseases-conditions/diabetes/symptoms-causes/syc-20371444",
+      "industry": "Health",
+      "type": "Article"
+    },
+    "raw": {
+      "json_ld_count": 2,
+      "json_ld_types": [
+        "BreadcrumbList",
+        "MedicalWebPage"
+      ],
+      "text_blocks": 257
+    },
+    "rendered": {
+      "json_ld_count": 2,
+      "json_ld_types": [
+        "BreadcrumbList",
+        "MedicalWebPage"
+      ],
+      "text_blocks": 224
+    },
+    "classification": "A: structured data server-rendered"
+  },
+  {
+    "site": {
+      "name": "wikipedia_ai",
+      "url": "https://en.wikipedia.org/wiki/Artificial_intelligence",
+      "industry": "Other",
+      "type": "Article"
+    },
+    "raw": {
+      "json_ld_count": 1,
+      "json_ld_types": [
+        "Article"
+      ],
+      "text_blocks": 2489
+    },
+    "rendered": {
+      "json_ld_count": 1,
+      "json_ld_types": [
+        "Article"
+      ],
+      "text_blocks": 2494
+    },
+    "classification": "A: structured data server-rendered"
+  },
+  {
+    "site": {
+      "name": "nytimes_tech",
+      "url": "https://www.nytimes.com/section/technology",
+      "industry": "Media",
+      "type": "Category"
+    },
+    "raw": {
+      "json_ld_count": 2,
+      "json_ld_types": [
+        "CollectionPage",
+        "NewsMediaOrganization"
+      ],
+      "text_blocks": 52
+    },
+    "rendered": {
+      "json_ld_count": 2,
+      "json_ld_types": [
+        "CollectionPage",
+        "NewsMediaOrganization"
+      ],
+      "text_blocks": 352
+    },
+    "classification": "A: structured data server-rendered"
+  }
+]

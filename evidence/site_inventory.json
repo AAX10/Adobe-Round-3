@@ -1,0 +1,32 @@
+{
+  "total_sites": 27,
+  "sites": [
+    {"name": "Adobe", "url": "https://business.adobe.com/products/commerce/ai-commerce.html", "industry": "SaaS", "page_type": "Capability", "classification": "H-001B"},
+    {"name": "Rivian", "url": "https://rivian.com/r1t", "industry": "Automotive", "page_type": "Product", "classification": "H-001B"},
+    {"name": "Airbnb", "url": "https://www.airbnb.com/rooms/10317668", "industry": "Travel", "page_type": "Listing", "classification": "H-001A"},
+    {"name": "Zocdoc", "url": "https://www.zocdoc.com/primary-care-doctors", "industry": "Healthcare", "page_type": "Listing", "classification": "H-001A"},
+    {"name": "Stripe", "url": "https://stripe.com/payments", "industry": "FinTech", "page_type": "Capability", "classification": "NO_RELEVANT_JSONLD"},
+    {"name": "Chase", "url": "https://creditcards.chase.com/rewards-credit-cards/sapphire/preferred", "industry": "FinTech", "page_type": "Product", "classification": "NO_RELEVANT_JSONLD"},
+    {"name": "Amazon", "url": "https://www.amazon.com/Apple-AirPods-Pro-2nd-Gen/dp/B0D1XD1ZV3", "industry": "Ecommerce", "page_type": "Product", "classification": "NO_RELEVANT_JSONLD"},
+    {"name": "Figma", "url": "https://www.figma.com/design/", "industry": "SaaS", "page_type": "Product", "classification": "NO_RELEVANT_JSONLD"},
+    {"name": "Allbirds", "url": "https://www.allbirds.com/products/mens-tree-runners", "industry": "Ecommerce", "page_type": "Product", "classification": "SERVER_RENDERED"},
+    {"name": "Salesforce", "url": "https://www.salesforce.com/products/einstein-ai/", "industry": "SaaS", "page_type": "Capability", "classification": "SERVER_RENDERED"},
+    {"name": "Datadog", "url": "https://www.datadoghq.com/product/apm/", "industry": "SaaS", "page_type": "Capability", "classification": "SERVER_RENDERED"},
+    {"name": "Target", "url": "https://www.target.com/p/apple-airpods-pro-2nd-generation-with-magsafe-case-usb-c/-/A-89917578", "industry": "Ecommerce", "page_type": "Product", "classification": "NO_RELEVANT_JSONLD"},
+    {"name": "Marriott", "url": "https://www.marriott.com/en-us/hotels/nycjw-jw-marriott-essex-house-new-york/overview/", "industry": "Travel", "page_type": "Property", "classification": "NO_RELEVANT_JSONLD"},
+    {"name": "Mayo Clinic", "url": "https://www.mayoclinic.org/diseases-conditions/diabetes/symptoms-causes/syc-20371444", "industry": "Healthcare", "page_type": "Article", "classification": "SERVER_RENDERED"},
+    {"name": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Artificial_intelligence", "industry": "Education", "page_type": "Article", "classification": "SERVER_RENDERED"},
+    {"name": "NYTimes", "url": "https://www.nytimes.com/section/technology", "industry": "News", "page_type": "Category", "classification": "SERVER_RENDERED"},
+    {"name": "Netflix", "url": "https://www.netflix.com/", "industry": "Media", "page_type": "Service", "classification": "SERVER_RENDERED"},
+    {"name": "Hulu", "url": "https://www.hulu.com/welcome", "industry": "Media", "page_type": "Service", "classification": "SERVER_RENDERED"},
+    {"name": "Zillow", "url": "https://www.zillow.com/b/1-bedroom-apartments-san-francisco-ca/", "industry": "Real Estate", "page_type": "Listing", "classification": "SERVER_RENDERED"},
+    {"name": "Redfin", "url": "https://www.redfin.com/city/17151/CA/San-Francisco/apartments-for-rent", "industry": "Real Estate", "page_type": "Listing", "classification": "SERVER_RENDERED"},
+    {"name": "Spotify", "url": "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M", "industry": "Media", "page_type": "Service", "classification": "SERVER_RENDERED"},
+    {"name": "Tesla", "url": "https://www.tesla.com/models", "industry": "Automotive", "page_type": "Product", "classification": "SERVER_RENDERED"},
+    {"name": "Shop App", "url": "https://shop.app/", "industry": "Ecommerce", "page_type": "Service", "classification": "SERVER_RENDERED"},
+    {"name": "Notion", "url": "https://www.notion.so/product", "industry": "SaaS", "page_type": "Product", "classification": "SERVER_RENDERED"},
+    {"name": "Vercel", "url": "https://vercel.com/docs", "industry": "SaaS", "page_type": "Capability", "classification": "SERVER_RENDERED"},
+    {"name": "TripAdvisor", "url": "https://www.tripadvisor.com/Hotels-g60713-San_Francisco_California-Hotels.html", "industry": "Travel", "page_type": "Listing", "classification": "SERVER_RENDERED"},
+    {"name": "Coursera", "url": "https://www.coursera.org/professional-certificates/google-data-analytics", "industry": "Education", "page_type": "Product", "classification": "SERVER_RENDERED"}
+  ]
+}
