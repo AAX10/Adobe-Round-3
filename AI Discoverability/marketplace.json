@@ -1,0 +1,10 @@
+{
+  "name": "ai-discoverability-audit",
+  "version": "1.0.0",
+  "skills": [
+    { "id": "audit-orchestrator", "path": "audit-orchestrator", "entrypoint": true },
+    { "id": "A-Crawlability", "path": "A-Crawlability" },
+    { "id": "C-Extractability", "path": "C-Extractability" },
+    { "id": "F-Non-Text-Lock-In", "path": "F-Non-Text-Lock-In" }
+  ]
+}
