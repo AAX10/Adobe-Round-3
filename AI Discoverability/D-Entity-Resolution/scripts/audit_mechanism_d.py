@@ -1,11 +1,13 @@
-﻿import json
+import json
 import re
 import sys
 import io
+import datetime
 from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
 import jellyfish
+from playwright.sync_api import sync_playwright
 
 # Ensure UTF-8 output formatting for terminal environments
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -16,10 +18,16 @@ HEADERS = {
 }
 
 def fetch_html(url: str) -> str:
+    """Fetches HTML using Playwright to ensure SPA/React apps execute JS and render JSON-LD."""
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=10)
-        resp.raise_for_status()
-        return resp.text
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page(user_agent=HEADERS["User-Agent"])
+            # Wait until network is idle to ensure dynamic JSON-LD is fully injected
+            page.goto(url, timeout=20000, wait_until="networkidle")
+            html = page.content()
+            browser.close()
+            return html
     except Exception as e:
         return ""
 
@@ -49,7 +57,6 @@ def evaluate_hd1_graph_connectivity(nodes: list) -> dict:
     evidence = []
     severity = "none"
     
-    # Check 1: Missing Canonical ID
     if not org_nodes:
         evidence.append("No Organization node found in JSON-LD.")
         severity = "high"
@@ -57,7 +64,6 @@ def evaluate_hd1_graph_connectivity(nodes: list) -> dict:
         evidence.append("Organization node exists but lacks a canonical @id pointer.")
         severity = "high"
         
-    # Check 2: Node Collisions (Duplicate @id across differing @types)
     seen_ids = {}
     node_collision = False
     for n in nodes:
@@ -70,9 +76,8 @@ def evaluate_hd1_graph_connectivity(nodes: list) -> dict:
             seen_ids[nid] = ntype
             
     if node_collision:
-        severity = "critical" # Graph corruption is fatal
+        severity = "critical" 
         
-    # Check 3: Disconnected Sub-Entities
     unlinked_count = 0
     for node in nodes:
         ntype = node.get("@type", "Unknown")
@@ -126,19 +131,24 @@ def evaluate_hd2_external_identity(nodes: list) -> dict:
         evidence.append(f"Found {len(same_as)} sameAs links, but zero authoritative Knowledge Graph anchors (Wikidata/Wikipedia).")
         severity = "high"
 
-    # Link Integrity & Domain Drift Sub-Check
     broken_links = 0
     domain_drift = 0
-    for url in same_as[:5]: # Limit to top 5 to prevent timeouts
+    unverifiable_links = 0
+
+    for url in same_as[:5]: 
         try:
             parsed_orig = urlparse(url)
-            resp = requests.head(url, allow_redirects=True, headers=HEADERS, timeout=3)
+            resp = requests.head(url, allow_redirects=True, headers=HEADERS, timeout=5)
             if resp.status_code >= 400:
-                resp = requests.get(url, allow_redirects=True, headers=HEADERS, timeout=3)
+                resp = requests.get(url, allow_redirects=True, headers=HEADERS, timeout=5)
             
-            if resp.status_code >= 400:
+            # FIX: Safely handle 401, 403, 429, 999 anti-bot HTTP errors
+            if resp.status_code in [401, 403, 429, 999]:
+                unverifiable_links += 1
+                evidence.append(f"sameAs URL '{url}' returned anti-bot HTTP {resp.status_code} (Unverifiable).")
+            elif resp.status_code >= 400:
                 broken_links += 1
-                evidence.append(f"sameAs URL '{url}' returned HTTP {resp.status_code}.")
+                evidence.append(f"sameAs URL '{url}' is broken (HTTP {resp.status_code}).")
             else:
                 parsed_final = urlparse(resp.url)
                 if parsed_orig.netloc.replace("www.", "") != parsed_final.netloc.replace("www.", ""):
@@ -149,7 +159,7 @@ def evaluate_hd2_external_identity(nodes: list) -> dict:
             evidence.append(f"sameAs URL '{url}' failed to resolve.")
 
     if domain_drift > 0:
-        severity = "critical" # Anti-spoofing trigger
+        severity = "critical" 
     elif broken_links > 0 and severity != "critical":
         severity = "high"
 
@@ -212,7 +222,6 @@ def evaluate_hd4_claim_corroboration(html_content: str, nodes: list) -> dict:
     soup = BeautifulSoup(html_content, "html.parser")
     dom_text = soup.get_text()
     
-    # Regex to extract quantitative assertions ($ amounts, percentages, user stats)
     claim_pattern = r"(\b\d+(\.\d+)?%\b|\$\d+[\d,]*\b|\b\d+\+\s+(users|customers|employees|clients)\b)"
     claims_found = re.findall(claim_pattern, dom_text, re.IGNORECASE)
     
@@ -267,7 +276,9 @@ def run_audit(url: str):
     if h4 and h4["severity"] != "none": 
         findings.append(h4)
 
+    # FIX: Added required schema header "audited_at"
     report = {
+        "audited_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "site": url,
         "summary": {
             "total_findings": len(findings),
