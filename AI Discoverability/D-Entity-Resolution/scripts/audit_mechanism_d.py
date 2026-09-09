@@ -1,4 +1,4 @@
-import json
+﻿import json
 import re
 import sys
 import io
@@ -7,6 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 import jellyfish
 
+# Ensure UTF-8 output formatting for terminal environments
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 HEADERS = {
@@ -17,119 +18,269 @@ HEADERS = {
 def fetch_html(url: str) -> str:
     try:
         resp = requests.get(url, headers=HEADERS, timeout=10)
+        resp.raise_for_status()
         return resp.text
-    except:
+    except Exception as e:
         return ""
 
 def parse_json_ld(html_content: str) -> list:
     soup = BeautifulSoup(html_content, "html.parser")
     nodes = []
     for script in soup.find_all("script", type="application/ld+json"):
-        if not script.string: continue
+        if not script.string: 
+            continue
         try:
             data = json.loads(script.string)
-            if isinstance(data, list): nodes.extend(data)
+            if isinstance(data, list): 
+                nodes.extend(data)
             elif isinstance(data, dict):
-                if "@graph" in data: nodes.extend(data["@graph"])
-                else: nodes.append(data)
-        except: continue
+                if "@graph" in data and isinstance(data["@graph"], list): 
+                    nodes.extend(data["@graph"])
+                else: 
+                    nodes.append(data)
+        except json.JSONDecodeError: 
+            continue
     return nodes
 
-def evaluate_h1_graph_connectivity(nodes: list) -> dict:
+def evaluate_hd1_graph_connectivity(nodes: list) -> dict:
     org_nodes = [n for n in nodes if n.get("@type") == "Organization"]
     org_ids = {n.get("@id") for n in org_nodes if "@id" in n}
     
     evidence = []
+    severity = "none"
+    
+    # Check 1: Missing Canonical ID
     if not org_nodes:
         evidence.append("No Organization node found in JSON-LD.")
+        severity = "high"
     elif not org_ids:
-        evidence.append("Organization node lacks a canonical @id.")
-    
-    # Check sub-entities
-    unlinked = 0
-    total_refs = 0
+        evidence.append("Organization node exists but lacks a canonical @id pointer.")
+        severity = "high"
+        
+    # Check 2: Node Collisions (Duplicate @id across differing @types)
+    seen_ids = {}
+    node_collision = False
+    for n in nodes:
+        nid = n.get("@id")
+        ntype = n.get("@type")
+        if nid and ntype:
+            if nid in seen_ids and seen_ids[nid] != ntype:
+                node_collision = True
+                evidence.append(f"Node collision detected: @id '{nid}' assigned to both '{seen_ids[nid]}' and '{ntype}'.")
+            seen_ids[nid] = ntype
+            
+    if node_collision:
+        severity = "critical" # Graph corruption is fatal
+        
+    # Check 3: Disconnected Sub-Entities
+    unlinked_count = 0
     for node in nodes:
-        for prop in ["brand", "publisher", "author", "itemReviewed"]:
+        ntype = node.get("@type", "Unknown")
+        for prop in ["brand", "publisher", "author", "itemReviewed", "provider"]:
             if prop in node:
-                total_refs += 1
                 val = node[prop]
-                if isinstance(val, str) or (isinstance(val, dict) and "@id" not in val):
-                    unlinked += 1
-                    evidence.append(f"Node '{node.get('@type', 'Unknown')}' uses unlinked string/object for '{prop}'.")
+                if isinstance(val, str):
+                    unlinked_count += 1
+                    evidence.append(f"'{ntype}.{prop}' uses plain text string '{val}' instead of @id pointer.")
+                elif isinstance(val, dict):
+                    ref_id = val.get("@id")
+                    if not ref_id:
+                        unlinked_count += 1
+                        evidence.append(f"'{ntype}.{prop}' is an inline object lacking an @id pointer.")
+                    elif org_ids and ref_id not in org_ids:
+                        unlinked_count += 1
+                        evidence.append(f"'{ntype}.{prop}' @id '{ref_id}' does not match Organization @id.")
 
-    severity = "critical" if not org_ids else ("high" if unlinked > 0 else "none")
-    
+    if severity == "none" and unlinked_count > 0:
+        severity = "high"
+
     return {
-        "id": "D-001",
+        "id": "H-D1",
         "title": "Entity Graph Connectivity Deficit",
         "severity": severity,
-        "evidence": " ".join(evidence[:3]) if evidence else "Graph is connected properly with @id pointers.",
+        "evidence": " ".join(evidence) if evidence else "Entity graph is fully connected with valid @id pointers.",
         "suggested_action": {
-            "summary": "Ensure the canonical Organization has an absolute @id, and all child entities (Article, Product) reference it explicitly.",
+            "summary": "Ensure the primary Organization defines an absolute @id and all sub-entities reference it explicitly.",
             "priority": severity
         }
     }
 
-def evaluate_h2_external_identity(nodes: list) -> dict:
+def evaluate_hd2_external_identity(nodes: list) -> dict:
     org_nodes = [n for n in nodes if n.get("@type") == "Organization"]
     if not org_nodes:
-        return None # H1 already caught this
-    
+        return None
+
     same_as = org_nodes[0].get("sameAs", [])
-    if isinstance(same_as, str): same_as = [same_as]
-    
+    if isinstance(same_as, str): 
+        same_as = [same_as]
+
     evidence = []
-    kg_anchors = [u for u in same_as if any(d in u.lower() for d in ['wikidata', 'wikipedia'])]
+    severity = "none"
+    
+    kg_anchors = [u for u in same_as if any(d in u.lower() for d in ['wikidata.org', 'wikipedia.org', 'google.com/search'])]
     
     if not same_as:
-        evidence.append("Organization lacks sameAs identity anchors.")
+        evidence.append("Organization schema lacks sameAs identity anchors.")
         severity = "high"
     elif not kg_anchors:
-        evidence.append(f"Found {len(same_as)} sameAs links, but no authoritative Knowledge Graph anchors (Wikidata/Wikipedia).")
-        severity = "medium"
-    else:
-        severity = "none"
-        
+        evidence.append(f"Found {len(same_as)} sameAs links, but zero authoritative Knowledge Graph anchors (Wikidata/Wikipedia).")
+        severity = "high"
+
+    # Link Integrity & Domain Drift Sub-Check
+    broken_links = 0
+    domain_drift = 0
+    for url in same_as[:5]: # Limit to top 5 to prevent timeouts
+        try:
+            parsed_orig = urlparse(url)
+            resp = requests.head(url, allow_redirects=True, headers=HEADERS, timeout=3)
+            if resp.status_code >= 400:
+                resp = requests.get(url, allow_redirects=True, headers=HEADERS, timeout=3)
+            
+            if resp.status_code >= 400:
+                broken_links += 1
+                evidence.append(f"sameAs URL '{url}' returned HTTP {resp.status_code}.")
+            else:
+                parsed_final = urlparse(resp.url)
+                if parsed_orig.netloc.replace("www.", "") != parsed_final.netloc.replace("www.", ""):
+                    domain_drift += 1
+                    evidence.append(f"sameAs URL '{url}' redirected out-of-domain to '{resp.url}'.")
+        except Exception:
+            broken_links += 1
+            evidence.append(f"sameAs URL '{url}' failed to resolve.")
+
+    if domain_drift > 0:
+        severity = "critical" # Anti-spoofing trigger
+    elif broken_links > 0 and severity != "critical":
+        severity = "high"
+
     return {
-        "id": "D-002",
+        "id": "H-D2",
         "title": "External Identity Grounding Deficit",
         "severity": severity,
-        "evidence": " ".join(evidence) if evidence else "Authoritative Knowledge Graph anchors found.",
+        "evidence": " ".join(evidence) if evidence else "Valid, high-authority Knowledge Graph identity anchors found.",
         "suggested_action": {
-            "summary": "Add sameAs pointers resolving to Wikidata, Wikipedia, or authoritative financial registries.",
+            "summary": "Add resolving sameAs URLs pointing to Wikidata QIDs or Wikipedia articles.",
+            "priority": severity
+        }
+    }
+
+def evaluate_hd3_cross_modal_consistency(html_content: str, nodes: list) -> dict:
+    org_nodes = [n for n in nodes if n.get("@type") == "Organization"]
+    if not org_nodes:
+        return None
+
+    schema_name = org_nodes[0].get("name", "")
+    soup = BeautifulSoup(html_content, "html.parser")
+    page_title = soup.title.string if soup.title else ""
+    h1_text = soup.find("h1").get_text() if soup.find("h1") else ""
+
+    def normalize(text):
+        text = text.lower()
+        text = re.sub(r"\b(inc|llc|corp|ltd|limited|pvt|private)\b", "", text)
+        return re.sub(r"[^\w\s]", "", text).strip()
+
+    norm_schema = normalize(schema_name)
+    norm_dom = normalize(f"{page_title} {h1_text}")
+
+    if not norm_schema or not norm_dom:
+        return None
+
+    similarity = jellyfish.jaro_winkler_similarity(norm_schema, norm_dom[:200])
+    
+    evidence = []
+    severity = "none"
+    
+    if similarity < 0.4:
+        severity = "high"
+        evidence.append(f"Severe schema vs DOM name contradiction detected (Jaro-Winkler: {similarity:.2f}). Schema: '{schema_name}'.")
+    elif similarity < 0.75:
+        severity = "medium"
+        evidence.append(f"Moderate DOM/Schema naming variance detected (Jaro-Winkler: {similarity:.2f}).")
+
+    return {
+        "id": "H-D3",
+        "title": "Cross-Modal Attribute Contradiction",
+        "severity": severity,
+        "evidence": " ".join(evidence) if evidence else f"High cross-modal string consistency verified (Jaro-Winkler: {similarity:.2f}).",
+        "suggested_action": {
+            "summary": "Align JSON-LD Organization name with visible <h1> and <title> headers.",
+            "priority": severity
+        }
+    }
+
+def evaluate_hd4_claim_corroboration(html_content: str, nodes: list) -> dict:
+    soup = BeautifulSoup(html_content, "html.parser")
+    dom_text = soup.get_text()
+    
+    # Regex to extract quantitative assertions ($ amounts, percentages, user stats)
+    claim_pattern = r"(\b\d+(\.\d+)?%\b|\$\d+[\d,]*\b|\b\d+\+\s+(users|customers|employees|clients)\b)"
+    claims_found = re.findall(claim_pattern, dom_text, re.IGNORECASE)
+    
+    citations = []
+    for n in nodes:
+        if "citation" in n:
+            citations.append(n["citation"])
+
+    claim_count = len(claims_found)
+    citation_count = len(citations)
+    
+    evidence = []
+    severity = "none"
+    
+    if claim_count > 0 and citation_count == 0:
+        severity = "medium"
+        evidence.append(f"Detected {claim_count} quantitative claims in DOM text with zero RDF citation properties in schema.")
+
+    return {
+        "id": "H-D4",
+        "title": "Uncorroborated Factual Claim Deficit",
+        "severity": severity,
+        "evidence": " ".join(evidence) if evidence else "Quantitative claims are backed by structured citation references or no raw stats present.",
+        "suggested_action": {
+            "summary": "Embed structured RDF 'citation' properties or outbound links adjacent to quantitative assertions.",
             "priority": severity
         }
     }
 
 def run_audit(url: str):
     html = fetch_html(url)
+    if not html:
+        print(json.dumps({"error": f"Failed to retrieve HTML payload from {url}"}))
+        return
+
     nodes = parse_json_ld(html)
-    
     findings = []
-    
-    h1 = evaluate_h1_graph_connectivity(nodes)
-    if h1["severity"] != "none": findings.append(h1)
-        
-    h2 = evaluate_h2_external_identity(nodes)
-    if h2 and h2["severity"] != "none": findings.append(h2)
-    
-    # Mocking H3 and H4 for brevity, in production these parse DOM and regex claims
-    # findings.append(h3)
-    # findings.append(h4)
-    
+
+    h1 = evaluate_hd1_graph_connectivity(nodes)
+    if h1 and h1["severity"] != "none": 
+        findings.append(h1)
+
+    h2 = evaluate_hd2_external_identity(nodes)
+    if h2 and h2["severity"] != "none": 
+        findings.append(h2)
+
+    h3 = evaluate_hd3_cross_modal_consistency(html, nodes)
+    if h3 and h3["severity"] != "none": 
+        findings.append(h3)
+
+    h4 = evaluate_hd4_claim_corroboration(html, nodes)
+    if h4 and h4["severity"] != "none": 
+        findings.append(h4)
+
     report = {
         "site": url,
         "summary": {
             "total_findings": len(findings),
             "critical": sum(1 for f in findings if f["severity"] == "critical"),
             "high": sum(1 for f in findings if f["severity"] == "high"),
-            "medium": sum(1 for f in findings if f["severity"] == "medium")
+            "medium": sum(1 for f in findings if f["severity"] == "medium"),
+            "low_info": sum(1 for f in findings if f["severity"] == "low")
         },
         "findings": findings
     }
-    
+
     print(json.dumps(report, indent=2))
 
 if __name__ == "__main__":
-    target = sys.argv[1] if len(sys.argv) > 1 else "https://www.example.com"
+    target = sys.argv[1] if len(sys.argv) > 1 else "https://www.adobe.com"
     run_audit(target)
