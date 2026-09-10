@@ -1,4 +1,4 @@
-import json
+﻿import json
 import re
 import sys
 import io
@@ -9,7 +9,6 @@ from bs4 import BeautifulSoup
 import jellyfish
 from playwright.sync_api import sync_playwright
 
-# Ensure UTF-8 output formatting for terminal environments
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 HEADERS = {
@@ -17,14 +16,21 @@ HEADERS = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
 }
 
+def is_org(node: dict) -> bool:
+    """Helper to catch arrays and subtypes of Organization."""
+    t = node.get("@type")
+    valid_types = {"Organization", "Corporation", "LocalBusiness"}
+    if isinstance(t, list):
+        return bool(set(t) & valid_types)
+    return t in valid_types
+
 def fetch_html(url: str) -> str:
-    """Fetches HTML using Playwright to ensure SPA/React apps execute JS and render JSON-LD."""
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
             page = browser.new_page(user_agent=HEADERS["User-Agent"])
-            # Wait until network is idle to ensure dynamic JSON-LD is fully injected
-            page.goto(url, timeout=20000, wait_until="networkidle")
+            # FIX 1: domcontentloaded prevents infinite hangs on tracking pixels
+            page.goto(url, timeout=20000, wait_until="domcontentloaded")
             html = page.content()
             browser.close()
             return html
@@ -51,14 +57,15 @@ def parse_json_ld(html_content: str) -> list:
     return nodes
 
 def evaluate_hd1_graph_connectivity(nodes: list) -> dict:
-    org_nodes = [n for n in nodes if n.get("@type") == "Organization"]
+    # FIX 2: Set-based type checking
+    org_nodes = [n for n in nodes if is_org(n)]
     org_ids = {n.get("@id") for n in org_nodes if "@id" in n}
     
     evidence = []
     severity = "none"
     
     if not org_nodes:
-        evidence.append("No Organization node found in JSON-LD.")
+        evidence.append("No Organization/Corporation node found in JSON-LD.")
         severity = "high"
     elif not org_ids:
         evidence.append("Organization node exists but lacks a canonical @id pointer.")
@@ -70,10 +77,12 @@ def evaluate_hd1_graph_connectivity(nodes: list) -> dict:
         nid = n.get("@id")
         ntype = n.get("@type")
         if nid and ntype:
-            if nid in seen_ids and seen_ids[nid] != ntype:
+            # Handle list types in collision check
+            ntype_str = str(ntype)
+            if nid in seen_ids and seen_ids[nid] != ntype_str:
                 node_collision = True
-                evidence.append(f"Node collision detected: @id '{nid}' assigned to both '{seen_ids[nid]}' and '{ntype}'.")
-            seen_ids[nid] = ntype
+                evidence.append(f"Node collision detected: @id '{nid}' assigned to both '{seen_ids[nid]}' and '{ntype_str}'.")
+            seen_ids[nid] = ntype_str
             
     if node_collision:
         severity = "critical" 
@@ -111,7 +120,7 @@ def evaluate_hd1_graph_connectivity(nodes: list) -> dict:
     }
 
 def evaluate_hd2_external_identity(nodes: list) -> dict:
-    org_nodes = [n for n in nodes if n.get("@type") == "Organization"]
+    org_nodes = [n for n in nodes if is_org(n)]
     if not org_nodes:
         return None
 
@@ -142,7 +151,6 @@ def evaluate_hd2_external_identity(nodes: list) -> dict:
             if resp.status_code >= 400:
                 resp = requests.get(url, allow_redirects=True, headers=HEADERS, timeout=5)
             
-            # FIX: Safely handle 401, 403, 429, 999 anti-bot HTTP errors
             if resp.status_code in [401, 403, 429, 999]:
                 unverifiable_links += 1
                 evidence.append(f"sameAs URL '{url}' returned anti-bot HTTP {resp.status_code} (Unverifiable).")
@@ -175,7 +183,7 @@ def evaluate_hd2_external_identity(nodes: list) -> dict:
     }
 
 def evaluate_hd3_cross_modal_consistency(html_content: str, nodes: list) -> dict:
-    org_nodes = [n for n in nodes if n.get("@type") == "Organization"]
+    org_nodes = [n for n in nodes if is_org(n)]
     if not org_nodes:
         return None
 
@@ -185,6 +193,7 @@ def evaluate_hd3_cross_modal_consistency(html_content: str, nodes: list) -> dict
     h1_text = soup.find("h1").get_text() if soup.find("h1") else ""
 
     def normalize(text):
+        if not text: return ""
         text = text.lower()
         text = re.sub(r"\b(inc|llc|corp|ltd|limited|pvt|private)\b", "", text)
         return re.sub(r"[^\w\s]", "", text).strip()
@@ -195,7 +204,11 @@ def evaluate_hd3_cross_modal_consistency(html_content: str, nodes: list) -> dict
     if not norm_schema or not norm_dom:
         return None
 
-    similarity = jellyfish.jaro_winkler_similarity(norm_schema, norm_dom[:200])
+    # FIX 3: Substring Pre-Check to skip Jaro-Winkler penalties on exact matches inside longer strings
+    if norm_schema in norm_dom:
+        similarity = 1.0
+    else:
+        similarity = jellyfish.jaro_winkler_similarity(norm_schema, norm_dom[:200])
     
     evidence = []
     severity = "none"
@@ -276,7 +289,6 @@ def run_audit(url: str):
     if h4 and h4["severity"] != "none": 
         findings.append(h4)
 
-    # FIX: Added required schema header "audited_at"
     report = {
         "audited_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "site": url,
@@ -285,7 +297,8 @@ def run_audit(url: str):
             "critical": sum(1 for f in findings if f["severity"] == "critical"),
             "high": sum(1 for f in findings if f["severity"] == "high"),
             "medium": sum(1 for f in findings if f["severity"] == "medium"),
-            "low_info": sum(1 for f in findings if f["severity"] == "low")
+            # FIX 4: Schema compliance key rename
+            "low": sum(1 for f in findings if f["severity"] == "low")
         },
         "findings": findings
     }
