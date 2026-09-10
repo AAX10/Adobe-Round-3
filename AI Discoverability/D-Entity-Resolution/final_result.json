@@ -1,0 +1,10 @@
+{
+  "mechanism": "D-Entity-Resolution",
+  "total_sites_audited": 5,
+  "successful_audits": 2,
+  "aggregate_findings": {
+    "critical": 0,
+    "high": 2,
+    "medium": 1
+  }
+}

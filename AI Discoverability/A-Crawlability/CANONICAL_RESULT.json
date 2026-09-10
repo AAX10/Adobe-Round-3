@@ -1,0 +1,16 @@
+{
+  "mechanism": "A-Crawlability",
+  "sites_audited": 5,
+  "sites_successful": 4,
+  "hypotheses_validated": [
+    "A-001",
+    "A-002",
+    "A-003"
+  ],
+  "aggregate_severity": {
+    "critical": 2,
+    "high": 1,
+    "medium": 1,
+    "low": 0
+  }
+}

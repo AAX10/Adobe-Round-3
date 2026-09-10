@@ -1,0 +1,10 @@
+[
+  {
+    "site": "https://stripe.com",
+    "status": "audited"
+  },
+  {
+    "site": "https://adobe.com",
+    "status": "blocked"
+  }
+]

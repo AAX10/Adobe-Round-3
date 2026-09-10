@@ -1,0 +1,36 @@
+{
+  "name": "brand-ai-readiness-audit",
+  "version": "1.0.0",
+  "description": "End-to-end AI discoverability and on-site engagement audit for enterprise websites. Evaluates crawlability, source selection, extractability, entity resolution, and non-text accessibility.",
+  "author": "Adobe Hackathon 2026 — Round 3 Team",
+  "license": "MIT",
+  "entrypoint": "audit.py",
+  "skills": [
+    {
+      "id": "A-Crawlability",
+      "path": "AI Discoverability/A-Crawlability",
+      "description": "Audits robots.txt permissions, link graph discoverability, and HTTP retrieval success."
+    },
+    {
+      "id": "B-Source-Selection",
+      "path": "AI Discoverability/B-Source-Selection",
+      "description": "Evaluates content density, heading-answer locality, and quote feasibility for RAG systems.",
+      "entrypoint": true
+    },
+    {
+      "id": "C-Extractability",
+      "path": "AI Discoverability/C-Extractability",
+      "description": "Tests render-dependent content loss, structured data availability, and fact-label associations."
+    },
+    {
+      "id": "D-Entity-Resolution",
+      "path": "AI Discoverability/D-Entity-Resolution",
+      "description": "Validates JSON-LD entity identity, sameAs link integrity, and cross-modal name consistency."
+    },
+    {
+      "id": "F-Non-Text-Lock-In",
+      "path": "AI Discoverability/F-Non-Text-Lock-In",
+      "description": "Checks image alt text, video transcript availability, and PDF text extractability."
+    }
+  ]
+}

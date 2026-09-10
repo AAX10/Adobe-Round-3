@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beta SaaS Product Pricing</title>
+</head>
+<body>
+    <header>
+        <h1>Beta SaaS Product</h1>
+    </header>
+    <main>
+        <section id="performance">
+            <h2>Unmatched Performance</h2>
+            <!-- H-QF3 trigger: "30% faster" with no baseline -->
+            <p>Our new engine is 30% faster.</p>
+            <p>Enjoy blazing speeds compared to alternatives.</p>
+        </section>
+        <section id="pricing">
+            <!-- H-QF2 trigger: qualifier "starting at" is in the parent <p>, 
+                 but "$49" is in a separate sentence within the same container -->
+            <p>Starting at competitive pricing for all plan tiers, subject to annual billing requirements. The Professional plan costs $49 per month.</p>
+            <p>Premium plan is $199 USD per month, billed annually.</p>
+            <!-- H-QF2 trigger: qualifier "up to" is in same element but not same sentence as the number -->
+            <p>Performance may vary up to certain limits depending on your configuration. Our benchmarks show 500 requests per second throughput.</p>
+        </section>
+        <section id="reliability">
+            <h2>Enterprise Grade</h2>
+            <!-- H-QF3 trigger: "99.9% uptime" without "as of" date -->
+            <p>Experience 99.9% uptime for all your critical workloads.</p>
+            <!-- H-QF3 trigger: "10,000+" without citation date -->
+            <p>Trusted by over 10,000+ customers worldwide.</p>
+            <!-- This one is properly qualified and should NOT trigger -->
+            <p>Our SLA guarantees 99.99% uptime as of January 2026 for the Enterprise tier.</p>
+        </section>
+        <section id="savings">
+            <h2>Cost Savings</h2>
+            <!-- H-QF2 trigger: "excluding" qualifier in same block, different sentence from the number -->
+            <p>All plans are billed in USD excluding applicable taxes and regulatory fees. The Starter tier is $29 per user.</p>
+            <!-- H-QF3 trigger: bare percentage without baseline -->
+            <p>Save 40% on annual billing.</p>
+        </section>
+    </main>
+</body>
+</html>

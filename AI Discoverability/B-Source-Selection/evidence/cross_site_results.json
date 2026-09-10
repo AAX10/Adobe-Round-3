@@ -1,0 +1,12 @@
+[
+  {
+    "site": "https://stripe.com",
+    "composite_score": 0.65,
+    "findings_by_hypothesis": {
+      "H-SS1": {
+        "triggered": true,
+        "severity": "high"
+      }
+    }
+  }
+]

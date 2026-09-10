@@ -1,0 +1,17 @@
+[
+  {
+    "site": "https://stripe.com",
+    "summary": {
+      "total_findings": 1,
+      "critical": 0,
+      "high": 1
+    },
+    "findings": [
+      {
+        "id": "F-001",
+        "severity": "high",
+        "evidence": "Detected standard failure pattern."
+      }
+    ]
+  }
+]
