@@ -70,7 +70,7 @@ Every surviving hypothesis traces through: mechanism → evidence → script →
 | **Supporting References** | Google JS SEO docs (REF-C6), Handbook Section C (REF-C7) |
 | **Experiment** | Dual-fetch (raw vs rendered) → identify facts in rendered DOM → verify absence from raw HTML |
 | **Observable Signal** | Important factual text present in rendered DOM, completely absent from raw HTML |
-| **Script** | `scripts/extractability/render_compare.py`, `scripts/extractability/fact_inventory.py` |
+| **Script** | `scripts/check_render_factual_content.py`, `scripts/extractability/fact_inventory.py` |
 | **Evidence** | "Text delta: N chars. Render-only content ratio: Mx" |
 | **Severity** | High — absolute factual omission for non-JS readers |
 | **Remediation** | Server-render critical content via SSR/SSG |

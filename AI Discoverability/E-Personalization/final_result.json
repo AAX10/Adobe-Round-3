@@ -1,0 +1,16 @@
+{
+  "report_type": "mechanism_summary",
+  "mechanism": "E-Personalization",
+  "timestamp": "2026-09-10T14:00:00Z",
+  "summary": {
+    "total_findings": 6,
+    "overall_severity": "high",
+    "severity_counts": {
+      "critical": 0,
+      "high": 4,
+      "medium": 2,
+      "low": 0,
+      "info": 0
+    }
+  }
+}
