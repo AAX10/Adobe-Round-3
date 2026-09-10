@@ -7,7 +7,7 @@
 | A-001 | Crawl-Blocked Important Content | crawl | 4.9 | **CORE** |
 | A-002 | Non-Crawlable Navigation | crawl | 4.2 | **CORE** |
 | A-003 | Important URL Retrieval Failure | crawl | 4.8 | **CORE** |
-| C-001 | Render-Dependent Factual Content | read | 4.4 | **CORE** |
+| C-001 | Render-Dependent Factual Content | read | 4.8 | **CORE** |
 | C-002 | Render-Dependent Structural Metadata | extract | 4.6 | **CANDIDATE** |
 | C-003 | Ambiguous Fact-to-Label Association | extract | 3.7 | **CANDIDATE** |
 | F-001 | Image-Only Core Facts | lock-in | 4.6 | **CORE** |
@@ -58,15 +58,15 @@
 | Unseen-site applicability | 5 |
 | Runtime feasibility | 4 |
 
-### C-001 — Render-Dependent Factual Content (4.4)
+### C-001 — Render-Dependent Factual Content (4.8)
 
 | Criterion | Score |
 |-----------|-------|
 | Mechanistic plausibility | 5 |
-| Evidence quality | 4 |
+| Evidence quality | 5 |
 | Observability | 5 |
-| Automation feasibility | 4 |
-| Cross-site generalization | 4 |
+| Automation feasibility | 5 |
+| Cross-site generalization | 5 |
 | False-positive resistance | 4 |
 | Actionability | 5 |
 | Unseen-site applicability | 5 |

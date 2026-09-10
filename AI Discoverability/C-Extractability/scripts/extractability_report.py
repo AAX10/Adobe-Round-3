@@ -30,16 +30,11 @@ def aggregate_report(render: dict, schema: dict, semantic: dict) -> dict:
     severity_counts = {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0}
 
     # C-001: Render-dependent factual content
-    if render.get("text", {}).get("significant_delta"):
-        sev = "high" if render["text"]["ratio"] > 2.0 else "medium"
-        findings.append({
-            "id": "C-001",
-            "title": "Render-Dependent Factual Content",
-            "severity": sev,
-            "evidence": f"Text delta: {render['text']['delta']} chars (ratio: {render['text']['ratio']}x)",
-            "suggested_action": {"summary": "Server-render critical content into initial HTML", "priority": sev},
-        })
-        severity_counts[sev] += 1
+    if "findings" in render:
+        for finding in render["findings"]:
+            if finding["id"] == "C-001":
+                findings.append(finding)
+                severity_counts[finding["severity"]] += 1
 
     # C-002: Render-dependent structural metadata
     if schema.get("classification") in ("semantic_loss", "information_loss"):

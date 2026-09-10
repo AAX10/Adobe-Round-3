@@ -39,10 +39,12 @@ Use when you need to check whether a page's important facts are **correctly extr
    - Check if JSON-LD provides explicit attribute-value mapping
    - Flag values with no semantic association and no JSON-LD coverage
 
-2. **C-001 — Render comparison** (requires raw + rendered HTML):
-   - Extract visible text from raw HTML and rendered HTML
-   - Compare text lengths, heading counts, link counts
-   - Identify content present only after rendering
+2. **C-001 — Render-dependent factual content** (requires Playwright headless browser):
+   - Automatically fetch raw HTML via direct request
+   - Automatically render the URL headlessly via Playwright
+   - Extract structural text blocks (headings, paragraphs) from the rendered DOM
+   - Verify if those exact text blocks exist anywhere in the raw HTML payload
+   - Flag facts that are only visible to a JS execution engine
 
 3. **C-002 — Structured data comparison** (requires raw + rendered HTML):
    - Extract JSON-LD blocks from raw and rendered HTML
