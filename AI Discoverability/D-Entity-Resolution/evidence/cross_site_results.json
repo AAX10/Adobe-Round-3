@@ -1,1 +1,44 @@
-{}
+[
+  {
+    "site": "https://www.microsoft.com",
+    "status": "audited",
+    "composite_score": 0.45,
+    "severity": "high",
+    "findings_by_hypothesis": {
+      "H-D1": {"triggered": true, "severity": "high"},
+      "H-D2": {"triggered": false, "severity": "none"},
+      "H-D3": {"triggered": false, "severity": "none", "reason": "Skipped — no Organization node"},
+      "H-D4": {"triggered": false, "severity": "none"}
+    }
+  },
+  {
+    "site": "https://www.ibm.com",
+    "status": "audited",
+    "composite_score": 0.38,
+    "severity": "critical",
+    "findings_by_hypothesis": {
+      "H-D1": {"triggered": true, "severity": "high"},
+      "H-D2": {"triggered": false, "severity": "none"},
+      "H-D3": {"triggered": false, "severity": "none", "reason": "Skipped — no Organization node"},
+      "H-D4": {"triggered": true, "severity": "medium"}
+    }
+  },
+  {
+    "site": "https://www.adobe.com",
+    "status": "blocked",
+    "http_status": 403,
+    "reason": "Bot protection — headless browser blocked"
+  },
+  {
+    "site": "https://www.salesforce.com",
+    "status": "blocked",
+    "http_status": 403,
+    "reason": "Bot protection — headless browser blocked"
+  },
+  {
+    "site": "https://www.oracle.com",
+    "status": "blocked",
+    "http_status": 403,
+    "reason": "Bot protection — headless browser blocked"
+  }
+]

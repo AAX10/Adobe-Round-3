@@ -1,0 +1,10 @@
+{
+  "mechanism": "B-Source-Selection",
+  "total_sites_audited": 5,
+  "successful_audits": 4,
+  "aggregate_findings": {
+    "critical": 2,
+    "high": 1,
+    "medium": 1
+  }
+}
