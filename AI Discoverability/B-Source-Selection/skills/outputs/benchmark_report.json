@@ -1,29 +1,39 @@
 {
-  "audited_at": "2026-09-10T06:11:46.033321+00:00",
-  "site": "spa_placeholder.html",
-  "composite_score": 0.8875,
-  "overall_severity": "pass",
+  "audited_at": "2026-09-10T06:36:32.918829+00:00",
+  "site": "noisy_chrome.html",
+  "composite_score": 0.7718,
+  "overall_severity": "medium",
   "sub_scores": {
-    "source_selection": 0.775,
-    "quote_feasibility": 1.0
+    "source_selection": 0.5687,
+    "quote_feasibility": 0.975
   },
   "summary": {
-    "total_findings": 4,
-    "critical": 0,
+    "total_findings": 5,
+    "critical": 1,
     "high": 0,
-    "medium": 1,
-    "low": 1
+    "medium": 0,
+    "low": 2
   },
   "findings": [
     {
-      "id": "H-SS2",
-      "title": "Heading-to-Answer Semantic Locality",
-      "severity": "medium",
-      "score": 0.5,
-      "evidence": "No headings detected inside main content region.",
+      "id": "H-SS1",
+      "title": "Noise-to-Signal / Content Density Ratio",
+      "severity": "critical",
+      "score": 0.2158,
+      "evidence": "Main content tokens: 52. Total container tokens: 241. MCDR = 0.216. Page is overwhelmed by boilerplate; RAG retrievers will ingest mostly noise.",
       "suggested_action": {
-        "summary": "Add semantic headings (h1-h3) to structure your page content.",
-        "priority": "medium"
+        "summary": "Wrap primary factual content in a <main> or <article> tag and move promotional banners, mega-navs, and footers outside the main content landmark.",
+        "priority": "critical"
+      }
+    },
+    {
+      "id": "H-QF3",
+      "title": "Bare Numerics",
+      "severity": "low",
+      "evidence": "nk 20 ADVERTISEMENT: Buy new gadgets at 50% off! Click here to claim your prize! Tr | nversations. Early benchmarks suggest a 15% improvement in logical inference tasks  | icy Accessibility Do Not Sell My Info \u00a9 2026 Tech News Mega Portal. All rights reser",
+      "suggested_action": {
+        "summary": "Address H-QF3 finding to improve quote feasibility.",
+        "priority": "low"
       }
     },
     {
@@ -40,9 +50,9 @@
       "id": "PROACTIVE-SS",
       "title": "Source Selection Proactive Optimization",
       "severity": "info",
-      "evidence": "Consider adding schema.org FAQPage markup to top Q&A sections for direct LLM snippet extraction. | Relocate promotional banners and CTAs to AFTER the first substantive answer paragraph under each heading.",
+      "evidence": "Wrap core content in a <main> landmark and add aria-label to identify the primary content region for accessibility and AI parsers.",
       "suggested_action": {
-        "summary": "Consider adding schema.org FAQPage markup to top Q&A sections for direct LLM snippet extraction.",
+        "summary": "Wrap core content in a <main> landmark and add aria-label to identify the primary content region for accessibility and AI parsers.",
         "priority": "low"
       }
     },
@@ -56,6 +66,5 @@
         "priority": "low"
       }
     }
-  ],
-  "execution_warning": "JS_RENDER_REQUIRED"
+  ]
 }
