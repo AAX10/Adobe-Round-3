@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-09-10T06:11:46.034346+00:00",
+  "mock_tests": [
+    {
+      "file": "perfect_page.html",
+      "status": "PASS",
+      "composite_score": 0.9833,
+      "severity": "pass",
+      "findings_count": 4
+    },
+    {
+      "file": "severed_qualifiers.html",
+      "status": "PASS",
+      "composite_score": 0.8866,
+      "severity": "pass",
+      "findings_count": 6
+    },
+    {
+      "file": "noisy_chrome.html",
+      "status": "PASS",
+      "composite_score": 0.7718,
+      "severity": "medium",
+      "findings_count": 5
+    },
+    {
+      "file": "anaphora_heavy.html",
+      "status": "PASS",
+      "composite_score": 0.886,
+      "severity": "pass",
+      "findings_count": 4
+    },
+    {
+      "file": "spa_placeholder.html",
+      "status": "PASS",
+      "composite_score": 0.8875,
+      "severity": "pass",
+      "findings_count": 4
+    }
+  ],
+  "live_benchmarks": []
+}

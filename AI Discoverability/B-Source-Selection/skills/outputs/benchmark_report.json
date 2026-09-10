@@ -1,0 +1,61 @@
+{
+  "audited_at": "2026-09-10T06:11:46.033321+00:00",
+  "site": "spa_placeholder.html",
+  "composite_score": 0.8875,
+  "overall_severity": "pass",
+  "sub_scores": {
+    "source_selection": 0.775,
+    "quote_feasibility": 1.0
+  },
+  "summary": {
+    "total_findings": 4,
+    "critical": 0,
+    "high": 0,
+    "medium": 1,
+    "low": 1
+  },
+  "findings": [
+    {
+      "id": "H-SS2",
+      "title": "Heading-to-Answer Semantic Locality",
+      "severity": "medium",
+      "score": 0.5,
+      "evidence": "No headings detected inside main content region.",
+      "suggested_action": {
+        "summary": "Add semantic headings (h1-h3) to structure your page content.",
+        "priority": "medium"
+      }
+    },
+    {
+      "id": "H-QF5",
+      "title": "Fluff Density",
+      "severity": "low",
+      "evidence": "Metric value: 0.0",
+      "suggested_action": {
+        "summary": "Address H-QF5 finding to improve quote feasibility.",
+        "priority": "low"
+      }
+    },
+    {
+      "id": "PROACTIVE-SS",
+      "title": "Source Selection Proactive Optimization",
+      "severity": "info",
+      "evidence": "Consider adding schema.org FAQPage markup to top Q&A sections for direct LLM snippet extraction. | Relocate promotional banners and CTAs to AFTER the first substantive answer paragraph under each heading.",
+      "suggested_action": {
+        "summary": "Consider adding schema.org FAQPage markup to top Q&A sections for direct LLM snippet extraction.",
+        "priority": "low"
+      }
+    },
+    {
+      "id": "PROACTIVE-QF",
+      "title": "Quote Feasibility Proactive Optimization",
+      "severity": "info",
+      "evidence": "Maintain high structural clarity for AI consumption.",
+      "suggested_action": {
+        "summary": "Maintain high structural clarity for AI consumption.",
+        "priority": "low"
+      }
+    }
+  ],
+  "execution_warning": "JS_RENDER_REQUIRED"
+}
