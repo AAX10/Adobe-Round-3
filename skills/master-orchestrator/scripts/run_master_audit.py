@@ -82,15 +82,71 @@ def main():
     # Recalculate summary
     summary = {"total_findings": len(all_findings), "critical": 0, "high": 0, "medium": 0, "low": 0}
     for f in all_findings:
-        sev = f.get("severity", "info")
+        sev = f.get("severity", "low")
         if sev in summary:
             summary[sev] += 1
-            
+
+    # Build proactive suggestions dynamically from what was actually found
+    proactive_suggestions = []
+
+    # Always: the rendering-dependent gap recommendation (SKILL.md requires at least one naming not_evaluated)
+    proactive_suggestions.append({
+        "summary": "This audit could not evaluate mobile tap-target sizing, true above-the-fold element count, computed-style sticky-CTA behavior, or live console errors (no browser rendering is used in this submission). Recommend a Lighthouse mobile pass or manual device testing to cover this rendering-dependent gap.",
+        "priority": "medium"
+    })
+
+    # Dynamic: derive suggestions from what PASSED (no findings) and what FAILED
+    finding_ids = {f.get("id") for f in all_findings}
+    finding_mechs = {f.get("mechanism") for f in all_findings if f.get("mechanism")}
+    severities = [f.get("severity") for f in all_findings]
+
+    # If entity resolution failed, suggest specific fix using actual evidence
+    d1 = next((f for f in all_findings if f.get("id") == "H-D1"), None)
+    if d1:
+        proactive_suggestions.append({
+            "summary": f"Site is missing Organization JSON-LD ({d1.get('evidence', '')}). Adding a structured identity block with @id, sameAs, and contactPoint would immediately resolve the highest-impact discoverability gap found.",
+            "priority": "high"
+        })
+
+    # If mechanism B found issues but C/E/F all passed, note the strength and suggest building on it
+    clean_mechs = {"A", "B", "C", "D", "E", "F"} - finding_mechs
+    if clean_mechs:
+        clean_names = {
+            "A": "Crawlability", "B": "Source Selection", "C": "Extractability",
+            "D": "Entity Resolution", "E": "Personalization", "F": "Non-Text Lock-In"
+        }
+        clean_list = ", ".join(clean_names.get(m, m) for m in sorted(clean_mechs) if m in clean_names)
+        if clean_list:
+            proactive_suggestions.append({
+                "summary": f"Mechanisms with no issues detected: {clean_list}. These are strengths to maintain — consider adding structured data enrichment (FAQPage, HowTo) to further capitalize on the clean extraction pipeline.",
+                "priority": "low"
+            })
+
+    # If high-severity findings dominate, suggest prioritization
+    high_count = severities.count("high") + severities.count("critical")
+    if high_count >= 3:
+        top_highs = [f.get("title", "") for f in all_findings if f.get("severity") in ("high", "critical")][:3]
+        proactive_suggestions.append({
+            "summary": f"This site has {high_count} high/critical findings. Recommended fix priority: {'; '.join(top_highs)}.",
+            "priority": "high"
+        })
+
+    # Fixed coverage gaps — always the same 4 rendering-dependent checks
+    coverage_gaps = [
+        {"check": "mobile_tap_targets", "reason": "Requires rendering a real viewport; this submission uses no browser-automation framework by design."},
+        {"check": "above_fold_node_count_true_viewport", "reason": "Requires rendering a real viewport; this submission uses no browser-automation framework by design."},
+        {"check": "sticky_cta_computed_style", "reason": "Requires rendering a real viewport; this submission uses no browser-automation framework by design."},
+        {"check": "console_errors", "reason": "Requires rendering a real viewport; this submission uses no browser-automation framework by design."}
+    ]
+
     report = {
         "site": target,
         "audited_at": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "scope": "full-audit",
         "summary": summary,
-        "findings": all_findings
+        "findings": all_findings,
+        "proactive_suggestions": proactive_suggestions,
+        "coverage_gaps": coverage_gaps
     }
     
     print(json.dumps(report, indent=2))

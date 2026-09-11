@@ -200,13 +200,6 @@ def run_orchestrated_audit(target: str):
     if ss_result.get("execution_warning"):
         report["execution_warning"] = ss_result["execution_warning"]
 
-    # ── Write to outputs/ ──
-    output_dir = os.path.join(BASE_DIR, "outputs")
-    os.makedirs(output_dir, exist_ok=True)
-    out_path = os.path.join(output_dir, "benchmark_report.json")
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
-
     return report
 
 
