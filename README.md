@@ -1,120 +1,106 @@
-# 🔍 Brand AI Readiness Audit — Agent Skill Marketplace
+# Brand AI Readiness Audit — Agent Skill Marketplace
 
 > **Adobe University Hackathon 2026 — Round 3**
-> An end-to-end audit pipeline that evaluates whether enterprise websites are optimized for AI discoverability, machine extraction, and on-site engagement.
+> An end-to-end audit pipeline that evaluates whether enterprise websites are optimized for **AI discoverability** and **on-site engagement**.
 
 ---
 
 ## Architecture
 
-```mermaid
-graph LR
-    URL["🌐 Target URL"] --> MO["🎯 Master Orchestrator<br/>audit.py"]
-
-    MO --> A["A — Crawlability<br/><i>robots.txt, link graph, HTTP codes</i>"]
-    MO --> B["B — Source Selection<br/><i>content density, heading locality,<br/>quote feasibility</i>"]
-    MO --> C["C — Extractability<br/><i>render-dependent content,<br/>structured data, fact-label mapping</i>"]
-    MO --> D["D — Entity Resolution<br/><i>JSON-LD identity, sameAs links,<br/>cross-modal consistency</i>"]
-    MO --> F["F — Non-Text Lock-In<br/><i>image alt text, video transcripts,<br/>PDF text extraction</i>"]
-
-    A --> R["📊 Unified JSON Report"]
-    B --> R
-    C --> R
-    D --> R
-    F --> R
-
-    R --> S["Severity Summary<br/>Critical | High | Medium | Pass"]
+```
+URL
+ │
+ ▼
+master-orchestrator (single entrypoint)
+ │
+ ├─► Pass 1: On-Site Engagement (Node.js)
+ │   └─► run_audit.js ──► capture + 4 check categories
+ │       │
+ │       ├─ technical_baseline (always)
+ │       ├─ conversion_friction (if transaction-focused)
+ │       ├─ retention_content (if repeat-visit/content)
+ │       └─ local_trust_leads (if lead-gen/local)
+ │
+ ├─► Pass 2: AI Discoverability (Python)
+ │   └─► run_discoverability_audit.py ──► 6 mechanisms
+ │       │
+ │       ├─ A — Crawlability (robots.txt, link graph, HTTP codes)
+ │       ├─ B — Source Selection (content density, heading locality, quote feasibility)
+ │       ├─ C — Extractability (render-dependent content, structured data, fact-label)
+ │       ├─ D — Entity Resolution (JSON-LD identity, sameAs, cross-modal consistency)
+ │       ├─ E — Personalization (context retention signals)
+ │       └─ F — Non-Text Lock-In (image alt, video transcripts, PDF extraction)
+ │
+ └─► Merge findings ──► Unified JSON Report
 ```
 
 ## Quick Start
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/vaibhav11rahejaa-sudo/Adobe-Round-3.git
+git clone https://github.com/AAX10/Adobe-Round-3.git
 cd Adobe-Round-3
 
-# 2. Install dependencies
+# 2. Install Python dependencies
 pip install -r requirements.txt
 
-# 3. Run full audit on any website
-python audit.py https://www.adobe.com
+# 3. Run the engagement audit (Node.js)
+node skills/engagement-audit-orchestrator/scripts/run_audit.js https://www.adobe.com
 
-# 4. Run a single mechanism
-python "AI Discoverability/D-Entity-Resolution/scripts/audit_mechanism_d.py" https://www.adobe.com
-python "AI Discoverability/B-Source-Selection/skills/audit-orchestrator/scripts/orchestrate.py" https://stripe.com
+# 4. Run the discoverability audit (Python)
+python skills/master-orchestrator/scripts/run_discoverability_audit.py https://www.adobe.com
 ```
 
-## Mechanism Taxonomy
+## Skills
 
-| ID | Mechanism | Pipeline Stage | Hypotheses | Script |
-|---|---|---|---|---|
-| **A** | Crawlability | Crawl | A-001 to A-003 | `robots_audit.py`, `link_discovery_audit.py`, `url_retrieval_audit.py` |
-| **B** | Source Selection & Quote Feasibility | Select + Quote | H-SS1 to H-SS3, H-QF1 to H-QF6 | `evaluate_source_selection.py`, `evaluate_quote_feasibility.py` |
-| **C** | Extractability / Machine-Readability | Read + Extract | C-001 to C-003 | `render_compare.py`, `structured_data_compare.py`, `semantic_association_audit.py` |
-| **D** | Entity Resolution | Resolve | D-001 to D-004 | `audit_mechanism_d.py` |
-| **F** | Non-Text Lock-In | Access | F-001 to F-003 | `image_fact_audit.py`, `visual_media_audit.py`, `document_fact_audit.py` |
-
-## Scoring Model
-
-Each mechanism produces a **0–1 composite score** mapped to severity tiers:
-
-| Score Range | Severity | Meaning |
+| Skill | Domain | Role |
 |---|---|---|
-| < 0.40 | 🔴 **Critical** | RAG systems drop or mangle core claims |
-| 0.40 – 0.65 | 🟠 **High** | High likelihood of hallucinated context |
-| 0.65 – 0.82 | 🟡 **Medium** | Minor qualifying conditions missing |
-| ≥ 0.82 | 🟢 **Pass** | Page is AI-ready |
+| `master-orchestrator` **(entrypoint)** | Both | Coordinates both audit passes, merges findings into one unified report |
+| `engagement-audit-orchestrator` | Engagement | Judges business model, selects relevant checks, cites research, emits engagement report |
+| `site-capture` | Engagement | Documents the capture phase (homepage fetch, internal page sampling, genre signals) |
+| `engagement-technical-baseline` | Engagement | Response time, accessibility screening, page complexity |
+| `engagement-conversion-friction` | Engagement | Media quality, checkout friction, trust signals, dark patterns |
+| `engagement-retention-content` | Engagement | Related content, ad density, freshness, onboarding, return triggers |
+| `engagement-local-trust-leads` | Engagement | Contact accessibility, response-time expectations, review visibility |
+| `A-Crawlability` | Discoverability | robots.txt, link graph, HTTP retrieval |
+| `B-Source-Selection` | Discoverability | Content density, heading-answer locality, quote feasibility |
+| `C-Extractability` | Discoverability | Render-dependent content, structured data, fact-label mapping |
+| `D-Entity-Resolution` | Discoverability | JSON-LD identity, sameAs links, cross-modal consistency |
+| `E-Personalization` | Discoverability | Context retention signals |
+| `F-Non-Text-Lock-In` | Discoverability | Image alt text, video transcripts, PDF extraction |
+
+## Design Principles
+
+1. **No browser automation.** Zero dependency on Playwright, Puppeteer, or Selenium at runtime. All fetching uses Node.js `fetch` (engagement) and Python `requests` (discoverability).
+2. **Business-model judgment is a reasoning step, not a regex vote.** The engagement orchestrator reads site text and makes a real analytical judgment, not a threshold on keyword counts.
+3. **Every severity is grounded in cited research.** Baymard Institute, MIT/InsideSales.com, Harvard Business Review, WebAIM Million 2026, and more. Full citations in `skills/engagement-audit-orchestrator/references/research-basis.md`.
+4. **Tight runtime budget.** Both passes combined target well under 5 minutes.
+5. **Recommend-only.** No skill alters live site state.
 
 ## Output Schema
 
-All mechanisms produce JSON matching this standardized schema:
+Both passes produce findings matching this standardized shape:
 
 ```json
 {
-  "site": "https://example.com",
+  "site": "example.com",
   "audited_at": "2026-09-10T12:00:00Z",
-  "summary": {
-    "total_findings": 5,
-    "critical": 1,
-    "high": 2,
-    "medium": 1,
-    "low": 1
-  },
+  "scope": "full-audit",
+  "site_understanding": "Business model judgment sentence.",
+  "summary": { "total_findings": 10, "critical": 1, "high": 3, "medium": 4, "low": 2 },
   "findings": [
     {
-      "id": "H-SS1",
-      "title": "Content Density Ratio",
-      "severity": "critical",
-      "evidence": "MCDR = 0.18. Page is overwhelmed by boilerplate.",
-      "suggested_action": {
-        "summary": "Wrap content in <main> tag.",
-        "priority": "critical"
-      }
+      "id": "E-001",
+      "title": "Finding title",
+      "severity": "high",
+      "evidence": "Concrete, traceable evidence.",
+      "suggested_action": { "summary": "Fix with cited research.", "priority": "high" }
     }
-  ]
+  ],
+  "proactive_suggestions": [],
+  "coverage_gaps": []
 }
 ```
-
-## Directory Structure
-
-```
-Adobe-Round-3/
-├── audit.py                          # Master orchestrator — single entrypoint
-├── marketplace.json                  # agentskills.io manifest
-├── requirements.txt                  # Python dependencies
-├── LICENSE                           # MIT License
-├── AI Discoverability/
-│   ├── A-Crawlability/              # robots.txt, link graph, HTTP retrieval
-│   ├── B-Source-Selection/           # Content density, heading locality, quote feasibility
-│   ├── C-Extractability/            # Render-dependent content, JSON-LD, fact-label mapping
-│   ├── D-Entity-Resolution/         # JSON-LD identity, sameAs, cross-modal consistency
-│   └── F-Non-Text-Lock-In/          # Image alt, video transcripts, PDF extraction
-└── On-Site Engagement/              # UX engagement metrics (teammate-owned)
-```
-
-## Team
-
-Built for the Adobe University Hackathon 2026 — Round 3 (Build the Agent Skill Marketplace).
 
 ## License
 
